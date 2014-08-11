@@ -359,6 +359,10 @@ var JavadocToMarkdown = function () {
         return "";
     }
 
+    function replaceHTMLWithMarkdown(html) {
+        return html.replace(/<\s*?code\s*?>(.*?)<\s*?\/\s*?code\s*?>/g, "`$1`");
+    }
+
     function getDocDescription(docLines) {
         var regex = /^(\t| )*?\*(\t| )+([^@].*)$/gm;
         var m;
@@ -370,7 +374,9 @@ var JavadocToMarkdown = function () {
             }
 
             if (typeof m[3] === "string" && m[3] !== null) {
-                out.push(cleanLine(m[3]));
+                m[3] = cleanLine(m[3]);
+                m[3] = replaceHTMLWithMarkdown(m[3]);
+                out.push(m[3]);
             }
         }
 
