@@ -319,6 +319,12 @@ var JavadocToMarkdown = function () {
                     fieldDeclaration = m[2].trim();
                     docLine = m[1];
 
+                    // if the source code line is an import statement
+                    if (/^import\s+/.test(fieldDeclaration)) {
+                        // ignore this piece
+                        continue;
+                    }
+
                     // if this is a single line comment
                     if (docLine.indexOf("*") === -1) {
                         // prepend an asterisk to achieve the normal line structure
