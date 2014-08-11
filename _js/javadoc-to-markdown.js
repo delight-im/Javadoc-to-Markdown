@@ -36,8 +36,8 @@ var JavadocToMarkdown = function () {
             out.push(fromSection(sections[i], headingsLevel, fnAddTagsMarkdown));
         }
 
-        // return the contents of the string buffer
-        return out.join("");
+        // return the contents of the string buffer and add a trailing newline
+        return out.join("")+"\n";
     }
 
     /**
