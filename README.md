@@ -4,7 +4,7 @@ Generate Markdown from your Javadoc, PHPDoc or JSDoc comments
 
 ## Usage
 
- * use our [online tool](https://javadoc-to-markdown.herokuapp.com/) based on this project
+ * use our [online tool](https://delight-im.github.io/Javadoc-to-Markdown/) based on this project
  * call methods from [`javadoc-to-markdown.js`](_js/javadoc-to-markdown.js) directly from code
 
 ## Contributions
