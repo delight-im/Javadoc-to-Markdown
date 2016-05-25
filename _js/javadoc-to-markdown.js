@@ -245,13 +245,20 @@ var JavadocToMarkdown = function () {
 		out.push("\n\n");
 		out.push("#".repeat(headingsLevel+1)+" `"+field+"`");
 
-		description = getDocDescription(section.doc);
+		// split the doc comment into main description and tag section
+		var docCommentParts = section.doc.split(/^(?:\t| )*?\*(?:\t| )*?(?=@)/m);
+		// get the main description (which may be an empty string)
+		var rawMainDescription = docCommentParts.shift();
+		// get the tag section (which may be an empty array)
+		var rawTags = docCommentParts;
+
+		description = getDocDescription(rawMainDescription);
 		if (description.length) {
 			out.push("\n\n");
 			out.push(description);
 		}
 
-		tags = getDocTags(section.doc);
+		tags = getDocTags(rawTags);
 		if (tags.length) {
 			out.push("\n");
 
@@ -364,7 +371,7 @@ var JavadocToMarkdown = function () {
 	}
 
 	function getDocDescription(docLines) {
-		var regex = /^(\t| )*?\*(\t| )+([^@].*)$/gm;
+		var regex = /^(\t| )*?\*(\t| )+(.*?)$/gm;
 		var m;
 		var out = [];
 
@@ -384,18 +391,24 @@ var JavadocToMarkdown = function () {
 	}
 
 	function getDocTags(docLines) {
-		var regex = /^(\t| )*?\*(\t| )*?@([a-zA-Z]+)(.*)$/gm;
+		var regex = /^(?:\t| )*?@([a-zA-Z]+)([\s\S]*)/;
 		var m;
 		var out = [];
 
-		while ((m = regex.exec(docLines)) !== null) {
-			if (m.index === regex.lastIndex) {
-				regex.lastIndex++;
-			}
+		for (var i = 0; i < docLines.length; i++) {
+			m = regex.exec(docLines[i]);
 
-			if (typeof m[3] === "string" && m[3] !== null) {
-				if (typeof m[4] === "string" && m[4] !== null) {
-					out.push({ "key": cleanSingleLine(m[3]), "value": cleanSingleLine(m[4]) });
+			if (m !== null) {
+				if (typeof m[1] === "string" && m[1] !== null) {
+					if (typeof m[2] === "string" && m[2] !== null) {
+						// trim leading and trailing space in the tag value
+						m[2] = m[2].trim();
+						// format multi-line tag values correctly
+						m[2] = m[2].split(/[\r\n]{1,2}(?:\t| )*?\*(?:\t| )*/).join("\n\n     ");
+
+						// add the key and value for this tag to the output
+						out.push({ "key": cleanSingleLine(m[1]), "value": m[2] });
+					}
 				}
 			}
 		}
