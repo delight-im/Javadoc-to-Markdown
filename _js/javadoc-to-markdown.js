@@ -420,8 +420,8 @@ var JavadocToMarkdown = function () {
 		// trim leading and trailing spaces
 		line = line.trim();
 
-		// clear spaces after line breaks and tabs
-		line = line.replace(/([\n\r\t])[ ]+/gm, "$1");
+		// clear spaces before and after line breaks and tabs
+		line = line.replace(/ *([\n\r\t]) */gm, "$1");
 
 		// make consecutive spaces one
 		line = line.replace(/[ ]{2,}/g, " ");
