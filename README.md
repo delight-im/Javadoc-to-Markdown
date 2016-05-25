@@ -4,12 +4,12 @@ Generate Markdown from your Javadoc, PHPDoc or JSDoc comments
 
 ## Usage
 
- * use our [online tool](https://delight-im.github.io/Javadoc-to-Markdown/) based on this project
- * call methods from [`javadoc-to-markdown.js`](_js/javadoc-to-markdown.js) directly from code
+ * Use the [online version](https://delight-im.github.io/Javadoc-to-Markdown/) of this project
+ * Call methods from [`javadoc-to-markdown.js`](_js/javadoc-to-markdown.js) directly from code
 
-## Contributions
+## Contributing
 
-We welcome all contributions, whether these are questions, issues, code fixes or improvements.
+All contributions are welcome! If you wish to contribute, please create an issue first so that your feature, problem or question can be discussed.
 
 ## License
 
