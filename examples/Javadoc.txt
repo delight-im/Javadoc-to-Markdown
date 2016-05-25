@@ -19,6 +19,7 @@ public class MyProgram {
      * @param  one    the first parameter (type is always inferred)
      * @param       two the second parameter (type is always inferred)
      * @param    three the third parameter (type is always inferred)
+     *          second line for third parameter
      * @return some arbitrary return value (with inferred type)
      * @author John Doe (john.doe@example.org)
      * @author Jane Doe (@jane)

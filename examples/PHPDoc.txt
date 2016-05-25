@@ -19,6 +19,7 @@
      * @param  $one    the first parameter (without a type)
      * @param  int     $two the second parameter (with a type)
      * @param  MyNoun  $three the third parameter (custom object)
+     *          second line for third parameter
      * @return string some arbitrary return value
      * @author John Doe (john.doe@example.org)
      * @author Jane Doe (@jane)
