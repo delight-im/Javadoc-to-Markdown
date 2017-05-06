@@ -64,34 +64,12 @@ var JavadocToMarkdown =
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
 /***/ (function(module, exports) {
-
-/**
- * used to store type specific options
- */
-const supportedTypes = {
-    javadoc: {
-        method: 'fromJavadoc'
-    },
-    phpdoc: {
-        method: 'fromPHPDoc'
-    },
-    jsdoc: {
-        method: 'fromJSDoc'
-    }
-};
-module.exports = supportedTypes;
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-const supportedTypes = __webpack_require__(0);
 
 /**
  * Generate Markdown from your Javadoc, PHPDoc or JSDoc comments
@@ -108,6 +86,11 @@ var JavadocToMarkdown = function () {
 	var self = this;
 
 	/**
+  * Will store conversion handlers
+  */
+	this.converters = {};
+
+	/**
   * Generates Markdown documentation from code based on language type specified
   *
   * @param {string} language the language of the code (Javadoc, PHPDoc, JSDoc)
@@ -118,10 +101,11 @@ var JavadocToMarkdown = function () {
   */
 	this.convertCode = function (language, code, headingsLevel, options) {
 		var output;
+		options = typeof options === 'object' ? options : {};
 		language = typeof language === 'string' ? language.toLowerCase() : language;
-		if (supportedTypes[language]) {
-			var typeOptions = supportedTypes[language];
-			output = typeOptions['method'](code, headingsLevel, options);
+		var conversionHandler = this.converters[language];
+		if (typeof conversionHandler === 'function') {
+			output = conversionHandler(code, headingsLevel, options);
 		} else {
 			throw "Unsupported language " + language;
 		}
@@ -133,6 +117,7 @@ var JavadocToMarkdown = function () {
   *
   * @param {string} code the code that contains doc comments
   * @param {number} headingsLevel the headings level to use as the base (1-6)
+  * @param {options} options additional options to configure the output
   * @param {function} fnAddTagsMarkdown the function that processes doc tags and generates the Markdown documentation
   * @returns {string} the Markdown documentation
   */
@@ -159,6 +144,7 @@ var JavadocToMarkdown = function () {
   *
   * @param {string} code the code that contains doc comments
   * @param {number} headingsLevel the headings level to use as the base (1-6)
+  * @param {options} options additional options to configure the output
   * @returns {string} the Markdown documentation
   */
 	this.fromStaticTypesDoc = function (code, headingsLevel, options) {
@@ -229,6 +215,7 @@ var JavadocToMarkdown = function () {
   *
   * @param {string} code the code that contains doc comments
   * @param {number} headingsLevel the headings level to use as the base (1-6)
+  * @param {options} options additional options to configure the output
   * @param {function} fnFormatType the function that formats a type information (single argument)
   * @param {function} fnFormatTypeAndName the function that formats type and name information (two arguments)
   * @returns {string} the Markdown documentation
@@ -307,9 +294,10 @@ var JavadocToMarkdown = function () {
   *
   * @param {string} code the code that contains doc comments
   * @param {number} headingsLevel the headings level to use as the base (1-6)
+  * @param {options} options additional options to configure the output
   * @returns {string} the Markdown documentation
   */
-	this.fromJavadoc = function (code, headingsLevel, options) {
+	this.converters.javadoc = function (code, headingsLevel, options) {
 		return self.fromStaticTypesDoc(code, headingsLevel, options);
 	};
 
@@ -318,9 +306,10 @@ var JavadocToMarkdown = function () {
   *
   * @param {string} code the code that contains doc comments
   * @param {number} headingsLevel the headings level to use as the base (1-6)
+  * @param {options} options additional options to configure the output
   * @returns {string} the Markdown documentation
   */
-	this.fromPHPDoc = function (code, headingsLevel, options) {
+	this.converters.phpdoc = function (code, headingsLevel, options) {
 		return self.fromDynamicTypesDoc(code, headingsLevel, options, function (type) {
 			return "`" + type + "`";
 		}, function (type, name) {
@@ -341,9 +330,10 @@ var JavadocToMarkdown = function () {
   *
   * @param {string} code the code that contains doc comments
   * @param {number} headingsLevel the headings level to use as the base (1-6)
+  * @param {options} options additional options to configure the output
   * @returns {string} the Markdown documentation
   */
-	this.fromJSDoc = function (code, headingsLevel, options) {
+	this.converters.jsdoc = function (code, headingsLevel, options) {
 		return self.fromDynamicTypesDoc(code, headingsLevel, options, function (type) {
 			return "`" + type.substr(1, type.length - 2) + "`";
 		}, function (type, name) {

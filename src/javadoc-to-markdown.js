@@ -1,5 +1,3 @@
-const supportedTypes = require('./types')
-
 /**
  * Generate Markdown from your Javadoc, PHPDoc or JSDoc comments
  *
@@ -15,6 +13,11 @@ var JavadocToMarkdown = function () {
 	var self = this;
 
 	/**
+	 * Will store conversion handlers
+	 */
+	this.converters = {};
+
+	/**
 	 * Generates Markdown documentation from code based on language type specified
 	 *
 	 * @param {string} language the language of the code (Javadoc, PHPDoc, JSDoc)
@@ -25,10 +28,11 @@ var JavadocToMarkdown = function () {
 	 */
 	this.convertCode = function(language, code, headingsLevel, options) {
 		var output;
+		options = typeof options === 'object' ?  options : {};
 		language = typeof language === 'string' ? language.toLowerCase() : language;
-		if(supportedTypes[language]) {
-			var typeOptions = supportedTypes[language];
-			output = typeOptions['method'](code, headingsLevel, options);
+		var conversionHandler = this.converters[language];
+		if(typeof conversionHandler === 'function') {
+			output = conversionHandler(code, headingsLevel, options);
 		} else {
 			throw "Unsupported language " + language;
 		}
@@ -40,6 +44,7 @@ var JavadocToMarkdown = function () {
 	 *
 	 * @param {string} code the code that contains doc comments
 	 * @param {number} headingsLevel the headings level to use as the base (1-6)
+	 * @param {options} options additional options to configure the output
 	 * @param {function} fnAddTagsMarkdown the function that processes doc tags and generates the Markdown documentation
 	 * @returns {string} the Markdown documentation
 	 */
@@ -68,6 +73,7 @@ var JavadocToMarkdown = function () {
 	 *
 	 * @param {string} code the code that contains doc comments
 	 * @param {number} headingsLevel the headings level to use as the base (1-6)
+	 * @param {options} options additional options to configure the output
 	 * @returns {string} the Markdown documentation
 	 */
 	this.fromStaticTypesDoc = function(code, headingsLevel, options) {
@@ -116,6 +122,7 @@ var JavadocToMarkdown = function () {
 	 *
 	 * @param {string} code the code that contains doc comments
 	 * @param {number} headingsLevel the headings level to use as the base (1-6)
+	 * @param {options} options additional options to configure the output
 	 * @param {function} fnFormatType the function that formats a type information (single argument)
 	 * @param {function} fnFormatTypeAndName the function that formats type and name information (two arguments)
 	 * @returns {string} the Markdown documentation
@@ -173,9 +180,10 @@ var JavadocToMarkdown = function () {
 	 *
 	 * @param {string} code the code that contains doc comments
 	 * @param {number} headingsLevel the headings level to use as the base (1-6)
+	 * @param {options} options additional options to configure the output
 	 * @returns {string} the Markdown documentation
 	 */
-	this.fromJavadoc = function(code, headingsLevel, options) {
+	this.converters.javadoc = function(code, headingsLevel, options) {
 		return self.fromStaticTypesDoc(code, headingsLevel, options);
 	};
 
@@ -184,9 +192,10 @@ var JavadocToMarkdown = function () {
 	 *
 	 * @param {string} code the code that contains doc comments
 	 * @param {number} headingsLevel the headings level to use as the base (1-6)
+	 * @param {options} options additional options to configure the output
 	 * @returns {string} the Markdown documentation
 	 */
-	this.fromPHPDoc = function(code, headingsLevel, options) {
+	this.converters.phpdoc = function(code, headingsLevel, options) {
 		return self.fromDynamicTypesDoc(
 			code,
 			headingsLevel,
@@ -213,9 +222,10 @@ var JavadocToMarkdown = function () {
 	 *
 	 * @param {string} code the code that contains doc comments
 	 * @param {number} headingsLevel the headings level to use as the base (1-6)
+	 * @param {options} options additional options to configure the output
 	 * @returns {string} the Markdown documentation
 	 */
-	this.fromJSDoc = function(code, headingsLevel, options) {
+	this.converters.jsdoc = function(code, headingsLevel, options) {
 		return self.fromDynamicTypesDoc(
 			code,
 			headingsLevel,

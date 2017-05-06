@@ -3,7 +3,7 @@ const path = require('path');
 const _ = require('lodash');
 
 const defaultConfig = {
-    name: 'Normal Library',
+    name: 'Uncompressed JavadocToMarkdown',
     entry: './src/javadoc-to-markdown.js',
     output: {
       path: path.join(__dirname, '_js'),
@@ -33,7 +33,7 @@ const defaultConfig = {
   };
 
 var minifedLib = _.merge({}, defaultConfig, {
-    name: 'Minified',
+    name: 'Minified JavadocToMarkdown',
     output: {
       filename: 'javadoc-to-markdown.min.js'
     },
