@@ -32,7 +32,7 @@ All contributions are welcome! If you wish to contribute, please create an issue
 - clone your fork and cd into the directory
 - run `npm install`
 - edit the necessary files
-- if `src/javadoc-to-markdown.js` was edited then you would need to run the build command
+- if [src/javadoc-to-markdown.js](src/javadoc-to-markdown.js) was edited then you would need to run the build command
   - run `npm run build` and the updated library files will be placed in the `_js` folder
 - submit your pull request
 
