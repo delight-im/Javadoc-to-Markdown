@@ -42,10 +42,9 @@ describe('JavadocToMarkdown Suite: ', function() {
     });
 
     describe('Error Cases: ', function() {   
-        it('should convert javadoc to markdown when valid file is passed', function() {
+        it('should throw err when invalid lang type is specified', function() {
             var file = fs.readFileSync('./examples/JSDoc.txt', 'utf8');
-            var expected = fs.readFileSync('./examples/JSDoc.expected.txt', 'utf8');
-
+            
             expect(javadocToMarkdown.convertCode.bind(javadocToMarkdown, 'JSDocsss', file, 1))
             .to
             .throw('Unsupported language JSDocsss');
