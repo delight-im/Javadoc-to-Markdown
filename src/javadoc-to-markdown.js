@@ -29,8 +29,8 @@ var JavadocToMarkdown = function () {
 	this.convertCode = function(language, code, headingsLevel, options) {
 		var output;
 		options = typeof options === 'object' ?  options : {};
-		language = typeof language === 'string' ? language.toLowerCase() : language;
-		var conversionHandler = this.converters[language];
+		var lang = typeof language === 'string' ? language.toLowerCase() : language;
+		var conversionHandler = this.converters[lang];
 		if(typeof conversionHandler === 'function') {
 			output = conversionHandler(code, headingsLevel, options);
 		} else {
