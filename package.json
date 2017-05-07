@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "webpack",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node_modules/mocha/bin/mocha -R spec"
   },
   "cli": {
     "jdoc2md": "cli.js"
@@ -34,6 +34,8 @@
     "babel-core": "^6.24.1",
     "babel-loader": "^7.0.0",
     "babel-plugin-lodash": "^3.2.11",
+    "chai": "^3.5.0",
+    "mocha": "^3.3.0",
     "webpack": "^2.5.0"
   },
   "dependencies": {
