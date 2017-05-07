@@ -7,9 +7,35 @@ Generate Markdown from your Javadoc, PHPDoc or JSDoc comments
  * Use the [online version](https://delight-im.github.io/Javadoc-to-Markdown/) of this project
  * Call methods from [`javadoc-to-markdown.js`](_js/javadoc-to-markdown.js) directly from code
 
+## Nodejs
+
+**Install**
+
+```shell
+npm i javadoc-to-markdown --save
+```
+
+**Example**
+
+```js
+  var JavadocToMarkdown = require('javadoc-to-markdown').JavadocToMarkdown;
+  var javadocToMarkdown = new JavadocToMarkdown();
+  var output = javadocToMarkdown.convertCode('javadoc', code, 1);
+```
+
 ## Contributing
 
 All contributions are welcome! If you wish to contribute, please create an issue first so that your feature, problem or question can be discussed.
+
+### Steps
+
+- clone your fork and cd into the directory
+- run `npm install`
+- edit the necessary files
+- if [src/javadoc-to-markdown.js](src/javadoc-to-markdown.js) was edited then you would need to run the build command
+  - run `npm run build` and the updated library files will be placed in the `_js` folder
+- submit your pull request
+
 
 ## License
 

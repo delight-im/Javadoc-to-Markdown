@@ -1,0 +1,44 @@
+{
+  "name": "javadoc-to-markdown",
+  "version": "0.0.1",
+  "description": "convert javadoc and other languages api docs to markdown",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "build": "webpack",
+    "test": "node_modules/mocha/bin/mocha -R spec"
+  },
+  "cli": {
+    "jdoc2md": "cli.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/delight-im/Javadoc-to-Markdown.git"
+  },
+  "keywords": [
+    "javadoc",
+    "phpdoc",
+    "jsdoc",
+    "markdown",
+    "convert"
+  ],
+  "author": "delight-im",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/delight-im/Javadoc-to-Markdown/issues"
+  },
+  "homepage": "https://github.com/delight-im/Javadoc-to-Markdown#readme",
+  "devDependencies": {
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-plugin-lodash": "^3.2.11",
+    "chai": "^3.5.0",
+    "mocha": "^3.3.0",
+    "webpack": "^2.5.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.4"
+  }
+}

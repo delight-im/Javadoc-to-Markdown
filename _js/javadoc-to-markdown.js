@@ -1,3 +1,76 @@
+var JavadocToMarkdown =
+/******/ (function(modules) { // webpackBootstrap
+/******/ 	// The module cache
+/******/ 	var installedModules = {};
+/******/
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/
+/******/ 		// Check if module is in cache
+/******/ 		if(installedModules[moduleId]) {
+/******/ 			return installedModules[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = installedModules[moduleId] = {
+/******/ 			i: moduleId,
+/******/ 			l: false,
+/******/ 			exports: {}
+/******/ 		};
+/******/
+/******/ 		// Execute the module function
+/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+/******/
+/******/ 		// Flag the module as loaded
+/******/ 		module.l = true;
+/******/
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/
+/******/
+/******/ 	// expose the modules object (__webpack_modules__)
+/******/ 	__webpack_require__.m = modules;
+/******/
+/******/ 	// expose the module cache
+/******/ 	__webpack_require__.c = installedModules;
+/******/
+/******/ 	// identity function for calling harmony imports with the correct context
+/******/ 	__webpack_require__.i = function(value) { return value; };
+/******/
+/******/ 	// define getter function for harmony exports
+/******/ 	__webpack_require__.d = function(exports, name, getter) {
+/******/ 		if(!__webpack_require__.o(exports, name)) {
+/******/ 			Object.defineProperty(exports, name, {
+/******/ 				configurable: false,
+/******/ 				enumerable: true,
+/******/ 				get: getter
+/******/ 			});
+/******/ 		}
+/******/ 	};
+/******/
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = function(module) {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			function getDefault() { return module['default']; } :
+/******/ 			function getModuleExports() { return module; };
+/******/ 		__webpack_require__.d(getter, 'a', getter);
+/******/ 		return getter;
+/******/ 	};
+/******/
+/******/ 	// Object.prototype.hasOwnProperty.call
+/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+/******/
+/******/ 	// __webpack_public_path__
+/******/ 	__webpack_require__.p = "";
+/******/
+/******/ 	// Load entry module and return exports
+/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ })
+/************************************************************************/
+/******/ ([
+/* 0 */
+/***/ (function(module, exports) {
+
 /**
  * Generate Markdown from your Javadoc, PHPDoc or JSDoc comments
  *
@@ -13,223 +86,281 @@ var JavadocToMarkdown = function () {
 	var self = this;
 
 	/**
-	 * Generates Markdown documentation from code on a more abstract level
-	 *
-	 * @param {string} code the code that contains doc comments
-	 * @param {number} headingsLevel the headings level to use as the base (1-6)
-	 * @param {function} fnAddTagsMarkdown the function that processes doc tags and generates the Markdown documentation
-	 * @returns {string} the Markdown documentation
-	 */
-	function fromDoc(code, headingsLevel, fnAddTagsMarkdown) {
-		var i,
-			out,
-			sections;
+  * Will store conversion handlers
+  */
+	this.converters = {};
+
+	/**
+  * Generates Markdown documentation from code based on language type specified
+  *
+  * @param {string} language the language of the code (Javadoc, PHPDoc, JSDoc)
+  * @param {string} code the code that contains doc comments
+  * @param {number} headingsLevel the headings level to use as the base (1-6)
+  * @param {options} options additional options to configure the output
+  * @returns {string} the Markdown documentation
+  */
+	this.convertCode = function (language, code, headingsLevel, options) {
+		var output;
+		options = typeof options === 'object' ? options : {};
+		language = typeof language === 'string' ? language.toLowerCase() : language;
+		var conversionHandler = this.converters[language];
+		if (typeof conversionHandler === 'function') {
+			output = conversionHandler(code, headingsLevel, options);
+		} else {
+			throw "Unsupported language " + language;
+		}
+		return output;
+	};
+
+	/**
+  * Generates Markdown documentation from code on a more abstract level
+  *
+  * @param {string} code the code that contains doc comments
+  * @param {number} headingsLevel the headings level to use as the base (1-6)
+  * @param {options} options additional options to configure the output
+  * @param {function} fnAddTagsMarkdown the function that processes doc tags and generates the Markdown documentation
+  * @returns {string} the Markdown documentation
+  */
+	function fromDoc(code, headingsLevel, options, fnAddTagsMarkdown) {
+		var i, out, sections;
 
 		// get all documentation sections from code
 		sections = getSections(code);
 		// initialize a string buffer
 		out = [];
 
-		out.push("#".repeat(headingsLevel)+" Documentation");
+		out.push("#".repeat(headingsLevel) + " Documentation");
 
 		for (i = 0; i < sections.length; i++) {
 			out.push(fromSection(sections[i], headingsLevel, fnAddTagsMarkdown));
 		}
 
 		// return the contents of the string buffer and add a trailing newline
-		return out.join("")+"\n";
+		return out.join("") + "\n";
 	}
 
 	/**
-	 * Generates Markdown documentation from a statically typed language's doc comments
-	 *
-	 * @param {string} code the code that contains doc comments
-	 * @param {number} headingsLevel the headings level to use as the base (1-6)
-	 * @returns {string} the Markdown documentation
-	 */
-	this.fromStaticTypesDoc = function(code, headingsLevel) {
-		return fromDoc(code, headingsLevel, function(tag, assocBuffer) {
+  * Generates Markdown documentation from a statically typed language's doc comments
+  *
+  * @param {string} code the code that contains doc comments
+  * @param {number} headingsLevel the headings level to use as the base (1-6)
+  * @param {options} options additional options to configure the output
+  * @returns {string} the Markdown documentation
+  */
+	this.fromStaticTypesDoc = function (code, headingsLevel, options) {
+		return fromDoc(code, headingsLevel, options, function (tag, assocBuffer) {
 			var tokens;
 			switch (tag.key) {
-				case "abstract": addToBuffer(assocBuffer, "Abstract", tag.value); break;
-				case "access": addToBuffer(assocBuffer, "Access", tag.value); break;
-				case "author": addToBuffer(assocBuffer, "Author", tag.value); break;
-				case "constructor": addToBuffer(assocBuffer, "Constructor", null); break;
-				case "copyright": addToBuffer(assocBuffer, "Copyright", tag.value); break;
+				case "abstract":
+					addToBuffer(assocBuffer, "Abstract", tag.value);break;
+				case "access":
+					addToBuffer(assocBuffer, "Access", tag.value);break;
+				case "author":
+					addToBuffer(assocBuffer, "Author", tag.value);break;
+				case "constructor":
+					addToBuffer(assocBuffer, "Constructor", null);break;
+				case "copyright":
+					addToBuffer(assocBuffer, "Copyright", tag.value);break;
 				case "deprec":
-				case "deprecated": addToBuffer(assocBuffer, "Deprecated", null); break;
-				case "example": addToBuffer(assocBuffer, "Example", tag.value); break;
+				case "deprecated":
+					addToBuffer(assocBuffer, "Deprecated", null);break;
+				case "example":
+					addToBuffer(assocBuffer, "Example", tag.value);break;
 				case "exception":
 				case "throws":
 					tokens = tag.value.tokenize(/\s+/g, 2);
-					addToBuffer(assocBuffer, "Exceptions", "`"+tokens[0]+"` — "+tokens[1]);
+					addToBuffer(assocBuffer, "Exceptions", "`" + tokens[0] + "` — " + tokens[1]);
 					break;
-				case "exports": addToBuffer(assocBuffer, "Exports", tag.value); break;
-				case "license": addToBuffer(assocBuffer, "License", tag.value); break;
-				case "link": addToBuffer(assocBuffer, "Link", tag.value); break;
-				case "name": addToBuffer(assocBuffer, "Alias", tag.value); break;
-				case "package": addToBuffer(assocBuffer, "Package", tag.value); break;
+				case "exports":
+					addToBuffer(assocBuffer, "Exports", tag.value);break;
+				case "license":
+					addToBuffer(assocBuffer, "License", tag.value);break;
+				case "link":
+					addToBuffer(assocBuffer, "Link", tag.value);break;
+				case "name":
+					addToBuffer(assocBuffer, "Alias", tag.value);break;
+				case "package":
+					addToBuffer(assocBuffer, "Package", tag.value);break;
 				case "param":
 					tokens = tag.value.tokenize(/\s+/g, 2);
-					addToBuffer(assocBuffer, "Parameters", "`"+tokens[0]+"` — "+tokens[1]);
+					addToBuffer(assocBuffer, "Parameters", "`" + tokens[0] + "` — " + tokens[1]);
 					break;
-				case "private": addToBuffer(assocBuffer, "Private", null); break;
+				case "private":
+					addToBuffer(assocBuffer, "Private", null);break;
 				case "return":
-				case "returns": addToBuffer(assocBuffer, "Returns", tag.value); break;
-				case "see": addToBuffer(assocBuffer, "See also", tag.value); break;
-				case "since": addToBuffer(assocBuffer, "Since", tag.value); break;
-				case "static": addToBuffer(assocBuffer, "Static", tag.value); break;
-				case "subpackage": addToBuffer(assocBuffer, "Sub-package", tag.value); break;
-				case "this": addToBuffer(assocBuffer, "This", "`"+tag.value+"`"); break;
-				case "todo": addToBuffer(assocBuffer, "To-do", tag.value); break;
-				case "version": addToBuffer(assocBuffer, "Version", tag.value); break;
-				default: break;
+				case "returns":
+					addToBuffer(assocBuffer, "Returns", tag.value);break;
+				case "see":
+					addToBuffer(assocBuffer, "See also", tag.value);break;
+				case "since":
+					addToBuffer(assocBuffer, "Since", tag.value);break;
+				case "static":
+					addToBuffer(assocBuffer, "Static", tag.value);break;
+				case "subpackage":
+					addToBuffer(assocBuffer, "Sub-package", tag.value);break;
+				case "this":
+					addToBuffer(assocBuffer, "This", "`" + tag.value + "`");break;
+				case "todo":
+					addToBuffer(assocBuffer, "To-do", tag.value);break;
+				case "version":
+					addToBuffer(assocBuffer, "Version", tag.value);break;
+				default:
+					break;
 			}
 		});
 	};
 
 	/**
-	 * Generates Markdown documentation from a dynamically typed language's doc comments
-	 *
-	 * @param {string} code the code that contains doc comments
-	 * @param {number} headingsLevel the headings level to use as the base (1-6)
-	 * @param {function} fnFormatType the function that formats a type information (single argument)
-	 * @param {function} fnFormatTypeAndName the function that formats type and name information (two arguments)
-	 * @returns {string} the Markdown documentation
-	 */
-	this.fromDynamicTypesDoc = function(code, headingsLevel, fnFormatType, fnFormatTypeAndName) {
-		return fromDoc(code, headingsLevel, function(tag, assocBuffer) {
+  * Generates Markdown documentation from a dynamically typed language's doc comments
+  *
+  * @param {string} code the code that contains doc comments
+  * @param {number} headingsLevel the headings level to use as the base (1-6)
+  * @param {options} options additional options to configure the output
+  * @param {function} fnFormatType the function that formats a type information (single argument)
+  * @param {function} fnFormatTypeAndName the function that formats type and name information (two arguments)
+  * @returns {string} the Markdown documentation
+  */
+	this.fromDynamicTypesDoc = function (code, headingsLevel, options, fnFormatType, fnFormatTypeAndName) {
+		return fromDoc(code, headingsLevel, options, function (tag, assocBuffer) {
 			var tokens;
 			switch (tag.key) {
-				case "abstract": addToBuffer(assocBuffer, "Abstract", tag.value); break;
-				case "access": addToBuffer(assocBuffer, "Access", tag.value); break;
-				case "author": addToBuffer(assocBuffer, "Author", tag.value); break;
-				case "constructor": addToBuffer(assocBuffer, "Constructor", null); break;
-				case "copyright": addToBuffer(assocBuffer, "Copyright", tag.value); break;
+				case "abstract":
+					addToBuffer(assocBuffer, "Abstract", tag.value);break;
+				case "access":
+					addToBuffer(assocBuffer, "Access", tag.value);break;
+				case "author":
+					addToBuffer(assocBuffer, "Author", tag.value);break;
+				case "constructor":
+					addToBuffer(assocBuffer, "Constructor", null);break;
+				case "copyright":
+					addToBuffer(assocBuffer, "Copyright", tag.value);break;
 				case "deprec":
-				case "deprecated": addToBuffer(assocBuffer, "Deprecated", null); break;
-				case "example": addToBuffer(assocBuffer, "Example", tag.value); break;
+				case "deprecated":
+					addToBuffer(assocBuffer, "Deprecated", null);break;
+				case "example":
+					addToBuffer(assocBuffer, "Example", tag.value);break;
 				case "exception":
 				case "throws":
 					tokens = tag.value.tokenize(/\s+/g, 2);
-					addToBuffer(assocBuffer, "Exceptions", fnFormatType(tokens[0])+" — "+tokens[1]);
+					addToBuffer(assocBuffer, "Exceptions", fnFormatType(tokens[0]) + " — " + tokens[1]);
 					break;
-				case "exports": addToBuffer(assocBuffer, "Exports", tag.value); break;
-				case "license": addToBuffer(assocBuffer, "License", tag.value); break;
-				case "link": addToBuffer(assocBuffer, "Link", tag.value); break;
-				case "name": addToBuffer(assocBuffer, "Alias", tag.value); break;
-				case "package": addToBuffer(assocBuffer, "Package", tag.value); break;
+				case "exports":
+					addToBuffer(assocBuffer, "Exports", tag.value);break;
+				case "license":
+					addToBuffer(assocBuffer, "License", tag.value);break;
+				case "link":
+					addToBuffer(assocBuffer, "Link", tag.value);break;
+				case "name":
+					addToBuffer(assocBuffer, "Alias", tag.value);break;
+				case "package":
+					addToBuffer(assocBuffer, "Package", tag.value);break;
 				case "param":
 					tokens = tag.value.tokenize(/\s+/g, 3);
-					addToBuffer(assocBuffer, "Parameters", fnFormatTypeAndName(tokens[0], tokens[1])+" — "+tokens[2]);
+					addToBuffer(assocBuffer, "Parameters", fnFormatTypeAndName(tokens[0], tokens[1]) + " — " + tokens[2]);
 					break;
-				case "private": addToBuffer(assocBuffer, "Private", null); break;
+				case "private":
+					addToBuffer(assocBuffer, "Private", null);break;
 				case "return":
 				case "returns":
 					tokens = tag.value.tokenize(/\s+/g, 2);
-					addToBuffer(assocBuffer, "Returns", fnFormatType(tokens[0])+" — "+tokens[1]);
+					addToBuffer(assocBuffer, "Returns", fnFormatType(tokens[0]) + " — " + tokens[1]);
 					break;
-				case "see": addToBuffer(assocBuffer, "See also", tag.value); break;
-				case "since": addToBuffer(assocBuffer, "Since", tag.value); break;
-				case "static": addToBuffer(assocBuffer, "Static", tag.value); break;
-				case "subpackage": addToBuffer(assocBuffer, "Sub-package", tag.value); break;
-				case "this": addToBuffer(assocBuffer, "This", "`"+tag.value+"`"); break;
-				case "todo": addToBuffer(assocBuffer, "To-do", tag.value); break;
+				case "see":
+					addToBuffer(assocBuffer, "See also", tag.value);break;
+				case "since":
+					addToBuffer(assocBuffer, "Since", tag.value);break;
+				case "static":
+					addToBuffer(assocBuffer, "Static", tag.value);break;
+				case "subpackage":
+					addToBuffer(assocBuffer, "Sub-package", tag.value);break;
+				case "this":
+					addToBuffer(assocBuffer, "This", "`" + tag.value + "`");break;
+				case "todo":
+					addToBuffer(assocBuffer, "To-do", tag.value);break;
 				case "var":
 					tokens = tag.value.tokenize(/\s+/g, 2);
-					addToBuffer(assocBuffer, "Type", fnFormatType(tokens[0])+" — "+tokens[1]);
+					addToBuffer(assocBuffer, "Type", fnFormatType(tokens[0]) + " — " + tokens[1]);
 					break;
-				case "version": addToBuffer(assocBuffer, "Version", tag.value); break;
-				default: break;
+				case "version":
+					addToBuffer(assocBuffer, "Version", tag.value);break;
+				default:
+					break;
 			}
 		});
 	};
 
 	/**
-	 * Generates Markdown documentation from Javadoc comments
-	 *
-	 * @param {string} code the code that contains doc comments
-	 * @param {number} headingsLevel the headings level to use as the base (1-6)
-	 * @returns {string} the Markdown documentation
-	 */
-	this.fromJavadoc = function(code, headingsLevel) {
-		return self.fromStaticTypesDoc(code, headingsLevel);
+  * Generates Markdown documentation from Javadoc comments
+  *
+  * @param {string} code the code that contains doc comments
+  * @param {number} headingsLevel the headings level to use as the base (1-6)
+  * @param {options} options additional options to configure the output
+  * @returns {string} the Markdown documentation
+  */
+	this.converters.javadoc = function (code, headingsLevel, options) {
+		return self.fromStaticTypesDoc(code, headingsLevel, options);
 	};
 
 	/**
-	 * Generates Markdown documentation from PHPDoc comments
-	 *
-	 * @param {string} code the code that contains doc comments
-	 * @param {number} headingsLevel the headings level to use as the base (1-6)
-	 * @returns {string} the Markdown documentation
-	 */
-	this.fromPHPDoc = function(code, headingsLevel) {
-		return self.fromDynamicTypesDoc(
-			code,
-			headingsLevel,
-			function (type) {
-				return "`"+type+"`";
-			},
-			function (type, name) {
-				// if we have a valid name (and type)
-				if (/^\$([a-zA-Z0-9_$]+)$/.test(name)) {
-					return "`"+name+"` — `"+type+"`";
-				}
-				// if it seems we only have a name
-				else {
-					// return the name that was, wrongly, in the position of the type
-					return "`"+type+"`";
-				}
+  * Generates Markdown documentation from PHPDoc comments
+  *
+  * @param {string} code the code that contains doc comments
+  * @param {number} headingsLevel the headings level to use as the base (1-6)
+  * @param {options} options additional options to configure the output
+  * @returns {string} the Markdown documentation
+  */
+	this.converters.phpdoc = function (code, headingsLevel, options) {
+		return self.fromDynamicTypesDoc(code, headingsLevel, options, function (type) {
+			return "`" + type + "`";
+		}, function (type, name) {
+			// if we have a valid name (and type)
+			if (/^\$([a-zA-Z0-9_$]+)$/.test(name)) {
+				return "`" + name + "` — `" + type + "`";
 			}
-		);
-	};
-
-	/**
-	 * Generates Markdown documentation from JSDoc comments
-	 *
-	 * @param {string} code the code that contains doc comments
-	 * @param {number} headingsLevel the headings level to use as the base (1-6)
-	 * @returns {string} the Markdown documentation
-	 */
-	this.fromJSDoc = function(code, headingsLevel) {
-		return self.fromDynamicTypesDoc(
-			code,
-			headingsLevel,
-			function (type) {
-				return "`"+type.substr(1, type.length-2)+"`";
-			},
-			function (type, name) {
-				// if we have a valid type (and name)
-				if (/^\{([^{}]+)\}$/.test(type)) {
-					return "`"+name+"` — `"+type.substr(1, type.length-2)+"`";
-				}
-				// if it seems we only have a name
-				else {
+			// if it seems we only have a name
+			else {
 					// return the name that was, wrongly, in the position of the type
-					return "`"+type+"`";
+					return "`" + type + "`";
 				}
-			}
-		);
+		});
 	};
 
 	/**
-	 * Generates Markdown documentation from a given section
-	 *
-	 * The function processes units of documentation, a line of code with accompanying doc comment
-	 *
-	 * @param {object} section the section that consists of code line and doc comment
-	 * @param {number} headingsLevel the headings level to use as the base (1-6)
-	 * @param {function} fnAddTagsMarkdown the function that processes doc tags and generates the Markdown documentation
-	 * @returns {string} the Markdown documentation
-	 */
+  * Generates Markdown documentation from JSDoc comments
+  *
+  * @param {string} code the code that contains doc comments
+  * @param {number} headingsLevel the headings level to use as the base (1-6)
+  * @param {options} options additional options to configure the output
+  * @returns {string} the Markdown documentation
+  */
+	this.converters.jsdoc = function (code, headingsLevel, options) {
+		return self.fromDynamicTypesDoc(code, headingsLevel, options, function (type) {
+			return "`" + type.substr(1, type.length - 2) + "`";
+		}, function (type, name) {
+			// if we have a valid type (and name)
+			if (/^\{([^{}]+)\}$/.test(type)) {
+				return "`" + name + "` — `" + type.substr(1, type.length - 2) + "`";
+			}
+			// if it seems we only have a name
+			else {
+					// return the name that was, wrongly, in the position of the type
+					return "`" + type + "`";
+				}
+		});
+	};
+
+	/**
+  * Generates Markdown documentation from a given section
+  *
+  * The function processes units of documentation, a line of code with accompanying doc comment
+  *
+  * @param {object} section the section that consists of code line and doc comment
+  * @param {number} headingsLevel the headings level to use as the base (1-6)
+  * @param {function} fnAddTagsMarkdown the function that processes doc tags and generates the Markdown documentation
+  * @returns {string} the Markdown documentation
+  */
 	function fromSection(section, headingsLevel, fnAddTagsMarkdown) {
-		var assocBuffer,
-			description,
-			field,
-			out,
-			p,
-			t,
-			tags;
+		var assocBuffer, description, field, out, p, t, tags;
 
 		// initialize a string buffer
 		out = [];
@@ -243,7 +374,7 @@ var JavadocToMarkdown = function () {
 		}
 
 		out.push("\n\n");
-		out.push("#".repeat(headingsLevel+1)+" `"+field+"`");
+		out.push("#".repeat(headingsLevel + 1) + " `" + field + "`");
 
 		// split the doc comment into main description and tag section
 		var docCommentParts = section.doc.split(/^(?:\t| )*?\*(?:\t| )*?(?=@)/m);
@@ -279,26 +410,23 @@ var JavadocToMarkdown = function () {
 	}
 
 	function fromTagGroup(name, entries) {
-		var i,
-			out;
+		var i, out;
 
 		// initialize a string buffer
 		out = [];
 
 		out.push("\n");
 		if (entries.length === 1 && entries[0] === null) {
-			out.push(" * **"+name+"**");
-		}
-		else {
-			out.push(" * **"+name+":**");
+			out.push(" * **" + name + "**");
+		} else {
+			out.push(" * **" + name + ":**");
 			if (entries.length > 1) {
 				for (i = 0; i < entries.length; i++) {
 					out.push("\n");
-					out.push("   * "+entries[i]);
+					out.push("   * " + entries[i]);
 				}
-			}
-			else if (entries.length === 1) {
-				out.push(" "+entries[0]);
+			} else if (entries.length === 1) {
+				out.push(" " + entries[0]);
 			}
 		}
 
@@ -307,11 +435,7 @@ var JavadocToMarkdown = function () {
 	}
 
 	function getSections(code) {
-		var docLine,
-			fieldDeclaration,
-			m,
-			out,
-			regex;
+		var docLine, fieldDeclaration, m, out, regex;
 
 		regex = /\/\*\*([^]*?)\*\/([^{;/]+)/gm;
 		out = [];
@@ -335,7 +459,7 @@ var JavadocToMarkdown = function () {
 					// if this is a single line comment
 					if (docLine.indexOf("*") === -1) {
 						// prepend an asterisk to achieve the normal line structure
-						docLine = "*"+docLine;
+						docLine = "*" + docLine;
 					}
 
 					// interpret empty lines as if they contained a p-tag
@@ -446,12 +570,8 @@ var JavadocToMarkdown = function () {
 		buffer[key].push(value);
 	}
 
-	String.prototype.tokenize = function(splitByRegex, limit) {
-		var counter,
-			i,
-			m,
-			start,
-			tokens;
+	String.prototype.tokenize = function (splitByRegex, limit) {
+		var counter, i, m, start, tokens;
 
 		tokens = [];
 		counter = 1;
@@ -481,8 +601,12 @@ var JavadocToMarkdown = function () {
 		return tokens;
 	};
 
-	String.prototype.repeat = function(count) {
+	String.prototype.repeat = function (count) {
 		return new Array(count + 1).join(this);
 	};
-
 };
+
+module.exports = JavadocToMarkdown;
+
+/***/ })
+/******/ ]);
