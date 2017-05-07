@@ -13,13 +13,7 @@
 			outputBox;
 
 		outputBox = $("#results");
-
-		switch (language) {
-			case "Javadoc": output = javadocToMarkdown.fromJavadoc(code, headingsLevel); break;
-			case "PHPDoc": output = javadocToMarkdown.fromPHPDoc(code, headingsLevel); break;
-			case "JSDoc": output = javadocToMarkdown.fromJSDoc(code, headingsLevel); break;
-			default: throw "Unsupported language "+language;
-		}
+		output = javadocToMarkdown.convertCode(language, code, headingsLevel)
 
 		outputBox.text(output);
 		outputBox.parent().slideDown(400);
