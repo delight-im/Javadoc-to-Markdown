@@ -27,7 +27,14 @@ npm i javadoc-to-markdown --save
 
 All contributions are welcome! If you wish to contribute, please create an issue first so that your feature, problem or question can be discussed.
 
-Please edit the file in the `src` folder. When completed run `npm run build` and the browser files will be built.
+### Steps
+
+- clone your fork and cd into the directory
+- run `npm install`
+- edit the necessary files
+- if `src/javadoc-to-markdown.js` was edited then you would need to run the build coomand
+  - run `npm run build` and the library files will be placed in the `_js` folder
+- submit your pull request
 
 
 ## License
