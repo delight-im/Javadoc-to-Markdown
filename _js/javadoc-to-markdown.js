@@ -486,3 +486,5 @@ var JavadocToMarkdown = function () {
 	};
 
 };
+
+exports.fromJavadoc = new JavadocToMarkdown().fromJavadoc;

@@ -1,0 +1,29 @@
+{
+  "name": "javadoc-to-markdown",
+  "version": "1.0.0",
+  "description": "Generate Markdown from your Javadoc, PHPDoc or JSDoc comments",
+  "main": "index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erinmichaeljohnson-wk/Javadoc-to-Markdown.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/erinmichaeljohnson-wk/Javadoc-to-Markdown/issues"
+  },
+  "homepage": "https://github.com/erinmichaeljohnson-wk/Javadoc-to-Markdown#readme",
+  "dependencies": {
+    "async": "^2.6.2",
+    "fs-extra": "^7.0.1",
+    "gulp": "^4.0.0",
+    "lodash": "^4.17.11",
+    "yargs": "^13.2.2"
+  }
+}
